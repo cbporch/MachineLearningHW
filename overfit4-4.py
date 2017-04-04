@@ -27,3 +27,11 @@ def run_experiments():
                 y = []
                 for x_i in x:
                     y.append(f(x_i[0], a_q) + sqrt(sig) * randn())
+
+                # TODO: find g_2, linear regression
+
+                # TODO: calculate E_in for g_2
+
+                # TODO: find g_10, linear regression
+
+                # TODO: calculate E_in for g_2
