@@ -1,4 +1,4 @@
-from numpy import arange, ceil, sqrt
+from numpy import arange, ceil, sqrt, zeros
 from numpy.polynomial import legendre, polynomial as poly
 from numpy.random import uniform, randn
 
@@ -21,28 +21,31 @@ def g_10(x, y):
 
 def run_experiments():
     lo = hi = 1
-    for num in N:
-        for dim in Q_f:
-            for sig in sigma_squared:
-                g2_total = g10_total = 0
-                for count in range(30):
+    for num in N:                               # 100
+        print("num: {0}".format(num))
+        for dim in Q_f:                         # 20
+            print("\tQ_f dim: {0}".format(dim))
+            for sig in sigma_squared:           # 40
+                g2_sq_err = g10_sq_err = 0      # = 80,000 runs, 100 experiments each,
+                for count in range(100):        # = 8,000,000 runs
                     # generate x values
                     k = int(ceil(num * 0.2))
-                    x = uniform(-1, 1, (num))
+                    x = uniform(-1, 1, num)
 
                     # a_q are the coefficients for the Legendre target function,
                     # and are pulled from a standard normal distribution
                     a_q = randn(dim)
 
                     # generate y values
-                    y = []
-                    for x_i in x:
-                        y.append(f(x_i, a_q) + sqrt(sig) * randn())
+                    y = zeros(num)
 
-                    train_x = x[0:(num - k)]
-                    test_x = x[(num - k):]
-                    train_y = y[0:(num - k)]
-                    test_y = y[(num - k):]
+                    sq = sqrt(sig)
+                    for i in range(len(x)):
+                        y[i] = f(x[i], a_q) + sq * randn()
+
+                    diff = num - k
+                    train_x, test_x = x[:diff], x[diff:]
+                    train_y, test_y = y[:diff], y[diff:]
 
                     # g2_coeff and g10_coeff are coefficient matrices for a polynomial fit
                     g2_coeff = g_2(train_x, train_y)
@@ -51,19 +54,21 @@ def run_experiments():
                     g2 = 0
                     for i in range(len(test_x)):
                         g2 += (poly.polyval(test_x[i], g2_coeff) - test_y[i]) ** 2
-                    g2_total += g2 / len(test_x)
+                    g2_sq_err += g2 / len(test_x)
 
                     g10 = 0
                     for i in range(len(test_x)):
                         g10 += (poly.polyval(test_x[i], g10_coeff) - test_y[i]) ** 2
-                    g10_total += g10 / len(test_x)
+                    g10_sq_err += g10 / len(test_x)
 
-                H2 = g2_total / 30
-                H10 = g10_total / 30
-                if(H10-H2 < lo):
-                    lo = H10 - H2
-                    print("for num: {1}, Q_f: {0}, sigma: {2:1.2f} -> Lo: H10-H2: {3}".format(dim, num, sig, H10 - H2))
-                elif H10 - H2 > hi:
-                    hi = H10 - H2
-                    print("for num: {1}, Q_f: {0}, sigma: {2:1.2f} -> Hi: H10-H2: {3}".format(dim, num, sig, H10 - H2))
+                H2 = g2_sq_err / 100
+                H10 = g10_sq_err / 100
+                overfit = H10 - H2
+
+                if overfit < lo:
+                    lo = overfit
+                    print("\t\tfor sigma: {0:1.2f} -> Lo: H10-H2: {1}".format(sig, overfit))
+                elif overfit > hi:
+                    hi = overfit
+                    print("\t\tfor sigma: {0:1.2f} -> Hi: H10-H2: {1}".format(sig, overfit))
 run_experiments()
