@@ -21,15 +21,21 @@ def g_10(x, y):
 
 def run_experiments():
     lo = hi = 1
+
     for num in N:                               # 100
+        y = zeros(num)
         print("num: {0}".format(num))
+        k = int(ceil(num * 0.2))
+        diff = num - k
         for dim in Q_f:                         # 20
             print("\tQ_f dim: {0}".format(dim))
+
             for sig in sigma_squared:           # 40
                 g2_sq_err = g10_sq_err = 0      # = 80,000 runs, 100 experiments each,
+                sq = sqrt(sig)
+
                 for count in range(100):        # = 8,000,000 runs
                     # generate x values
-                    k = int(ceil(num * 0.2))
                     x = uniform(-1, 1, num)
 
                     # a_q are the coefficients for the Legendre target function,
@@ -37,13 +43,10 @@ def run_experiments():
                     a_q = randn(dim)
 
                     # generate y values
-                    y = zeros(num)
-
-                    sq = sqrt(sig)
                     for i in range(len(x)):
                         y[i] = f(x[i], a_q) + sq * randn()
 
-                    diff = num - k
+                    # break into test and training sets
                     train_x, test_x = x[:diff], x[diff:]
                     train_y, test_y = y[:diff], y[diff:]
 
