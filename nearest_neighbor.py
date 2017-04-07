@@ -16,15 +16,14 @@ y_data = np.array([1,1,-1])
 x = normalize(x_data)
 x = whiten(x)
 print(x)
-step = .05
+step = .01
 
-cmap_light = ListedColormap(['#FFAAAA', '#AAFFAA', '#AAAAFF'])
+cmap_light = ListedColormap(['#FFAAAA', '#AAAAFF'])
 
 clf = neighbors.KNeighborsClassifier(n_neighbors=2, weights='distance')
 clf.fit(x, y_data)
 
-# Plot the decision boundary. For that, we will assign a color to each
-# point in the mesh [x_min, x_max]x[y_min, y_max].
+# Plot the decision boundary.
 x_min, x_max = min(x[:,0]) - 1, max(x[:,0]) + 1
 y_min, y_max = min(x[:, 1]) - 1, max(x[:, 1]) + 1
 xx, yy = np.meshgrid(np.arange(x_min, x_max, step),
@@ -37,11 +36,11 @@ Z = Z.reshape(xx.shape)
 plt.figure()
 plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
-# Plot also the training points
+# Plot the training points
 plt.scatter(x[:, 0], x[:, 1], c=y_data, cmap='RdBu')
 plt.xlim(xx.min(), xx.max())
 plt.ylim(yy.min(), yy.max())
-plt.title("NN classification, PCA (k = %i, weights = '%s')"
+plt.title("NN classification, whitened (k = %i, weights = '%s')"
           % (2, 'distance'))
 
 plt.show()
