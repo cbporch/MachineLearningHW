@@ -5,9 +5,45 @@ from scipy.cluster.vq import whiten
 from sklearn import neighbors
 from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
+from sklearn.utils.validation import DataConversionWarning
 
 x_data = np.array([[0, 0], [0, 1], [5, 5]])
 y_data = np.array([1,1,-1])
+
+
+def compare(x_1, x_2):
+    return np.all(np.isclose(x_1, x_2))
+
+
+def run_comparison():
+    vector = x_data
+    bias = vector + 2
+    uniform = vector * 2
+    scaled = np.dot(np.diag(np.random.rand(1, len(vector))[0]), vector)
+    linear_transform = np.dot(np.arange(len(vector) * len(vector)).reshape(len(vector), len(vector)), vector)
+
+    print('\t\t       bias, unif, scale, linTran')
+    centered = vector - np.mean(vector)
+    print('Centering:  | {0}, {1}, {2}, {3}'.format(compare(bias - np.mean(bias), centered),
+                                                 compare(uniform - np.mean(uniform), centered),
+                                                 compare(scaled - np.mean(scaled), centered),
+                                                 compare(linear_transform - np.mean(linear_transform), centered)))
+
+    try:
+        normalized = normalize(vector)
+        print('Normalizing:| {0}, {1}, {2}, {3}'.format(compare(normalize(bias), normalized),
+                                                     compare(normalize(uniform), normalized),
+                                                     compare(normalize(scaled), normalized),
+                                                     compare(normalize(linear_transform), normalized)))
+    except DataConversionWarning:
+        pass
+
+    whitened = whiten(vector)
+    print('Whitening:  | {0}, {1}, {2}, {3}'.format(compare(whiten(bias), whitened),
+                                                   compare(whiten(uniform), whitened),
+                                                   compare(whiten(scaled), whitened),
+                                                   compare(whiten(linear_transform), whitened)))
+
 
 # pca = PCA(n_components=1, whiten=True)
 # x = pca.fit_transform(x_data, y_data)
