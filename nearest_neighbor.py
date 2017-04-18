@@ -82,10 +82,10 @@ def getboundry(x_data, y_data):
     plt.title("NN classification, whitened (k = %i, weights = '%s')"
               % (2, 'distance'))
     for zz in range(len(Z[0])):
-            if Z[0][zz] < 0:
-                boundry = xx[0][zz]
-                return boundry
+        if Z[0][zz] < 0:
+            boundry = xx[0][zz]
+            return boundry
 
-print(getboundry(x, y))
 
-plt.show()
+def plot():
+    plt.show()
