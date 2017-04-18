@@ -7,8 +7,8 @@ from sklearn.decomposition import PCA
 from sklearn.preprocessing import normalize
 from sklearn.utils.validation import DataConversionWarning
 
-x = x_data = np.array([[0, 0], [0, 1], [5, 5]])
-y_data = np.array([1,1,-1])
+x = np.array([[0, 0], [0, 1], [5, 5]])
+y = np.array([1,1,-1])
 
 
 def compare(x_1, x_2):
@@ -45,47 +45,47 @@ def run_comparison():
                                                    compare(whiten(linear_transform), whitened)))
 
 
-pca = PCA(n_components=1, whiten=True)
-x = pca.fit_transform(x_data, y_data)
-x = np.array([[x[0], 1], [x[1], 1], [x[2], 1]])
-
 # x = normalize(x_data)
 # x = whiten(x)
 # print(x)
 
-step = .01
 
-cmap_light = ListedColormap(['#FFAAAA', '#AAAAFF'])
+def getboundry(x_data, y_data):
+    pca = PCA(n_components=1, whiten=True)
 
-clf = neighbors.KNeighborsClassifier(n_neighbors=2, weights='distance')
-clf.fit(x, y_data)
+    x = pca.fit_transform(x_data, y_data)
+    x = np.array([[x[0], 1], [x[1], 1], [x[2], 1]])
+    step = .01
 
-# Plot the decision boundary.
-x_min, x_max = min(x[:, 0]) - 1, max(x[:, 0]) + 1
-y_min, y_max = min(x[:, 1]) - 1, max(x[:, 1]) + 1
-xx, yy = np.meshgrid(np.arange(x_min, x_max, step),
-                     np.arange(y_min, y_max, step))
+    cmap_light = ListedColormap(['#FFAAAA', '#AAAAFF'])
 
-Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    clf = neighbors.KNeighborsClassifier(n_neighbors=2, weights='distance')
+    clf.fit(x, y_data)
 
-# Put the result into a color plot
-Z = Z.reshape(xx.shape)
-plt.figure()
-plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
+    # Plot the decision boundary.
+    x_min, x_max = min(x[:, 0]) - 1, max(x[:, 0]) + 1
+    y_min, y_max = min(x[:, 1]) - 1, max(x[:, 1]) + 1
+    xx, yy = np.meshgrid(np.arange(x_min, x_max, step),
+                         np.arange(y_min, y_max, step))
 
-# Plot the training points
-plt.scatter(x[:, 0], x[:, 1], c=y_data, cmap='RdBu')
-plt.xlim(xx.min(), xx.max())
-plt.ylim(yy.min(), yy.max())
-plt.title("NN classification, whitened (k = %i, weights = '%s')"
-          % (2, 'distance'))
+    Z = clf.predict(np.c_[xx.ravel(), yy.ravel()])
+    # Put the result into a color plot
 
+    Z = Z.reshape(xx.shape)
+    plt.figure()
+    plt.pcolormesh(xx, yy, Z, cmap=cmap_light)
 
-def getboundry():
+    # Plot the training points
+    plt.scatter(x[:, 0], x[:, 1], c=y_data, cmap='RdBu')
+    plt.xlim(xx.min(), xx.max())
+    plt.ylim(yy.min(), yy.max())
+    plt.title("NN classification, whitened (k = %i, weights = '%s')"
+              % (2, 'distance'))
     for zz in range(len(Z[0])):
-        if Z[0][zz] < 0:
-            boundry = xx[0][zz]
-            return boundry
+            if Z[0][zz] < 0:
+                boundry = xx[0][zz]
+                return boundry
 
-print(getboundry())
+print(getboundry(x, y))
+
 plt.show()
